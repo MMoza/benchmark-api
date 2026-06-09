@@ -1,0 +1,139 @@
+openapi: 3.0.3
+info:
+  title: Habit Tracking API
+  version: 1.0.0
+  description: Shared API contract for all implementations.
+
+servers:
+  - url: http://localhost
+
+paths:
+  /habits:
+    get:
+      summary: List habits
+      responses:
+        '200':
+          description: Habit list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Habit'
+
+    post:
+      summary: Create habit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateHabitRequest'
+      responses:
+        '201':
+          description: Habit created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Habit'
+
+  /habits/{id}:
+    get:
+      summary: Get habit
+      parameters:
+        - $ref: '#/components/parameters/HabitId'
+      responses:
+        '200':
+          description: Habit found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Habit'
+        '404':
+          description: Habit not found
+
+    put:
+      summary: Update habit
+      parameters:
+        - $ref: '#/components/parameters/HabitId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateHabitRequest'
+      responses:
+        '200':
+          description: Habit updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Habit'
+
+  /habits/{id}/complete:
+    post:
+      summary: Register habit completion
+      parameters:
+        - $ref: '#/components/parameters/HabitId'
+      responses:
+        '200':
+          description: Completion registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Habit'
+
+components:
+  parameters:
+    HabitId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+  schemas:
+    Habit:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        frequency:
+          type: string
+          enum:
+            - daily
+            - weekly
+        target_count:
+          type: integer
+        completed_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    CreateHabitRequest:
+      type: object
+      required:
+        - name
+        - frequency
+        - target_count
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        frequency:
+          type: string
+          enum:
+            - daily
+            - weekly
+        target_count:
+          type: integer
+
+    UpdateHabitRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateHabitRequest'
